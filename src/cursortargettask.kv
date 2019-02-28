@@ -1,0 +1,52 @@
+#:kivy 1.9.1
+
+<Cursor>:
+    size: 50, 50
+    canvas:
+        Color:
+            rgba: 0,1,0,1
+        Ellipse:
+            size: 50, 50
+            pos: self.pos
+<Target>:
+    size: 20, 200
+    canvas:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<Path>:
+    size: 0, 0
+
+<BackgroundGrid>:
+    size: 0, 0
+
+<Field>:
+    size: 0, 0
+
+    target: target_id
+    cursor: cursor_id
+    bggrid: bggrid_id
+
+    BackgroundGrid:
+        id: bggrid_id
+        pos: 0, 0
+
+    Path:
+        id: target_id
+        pos: 0, 0
+
+    Cursor:
+        id: cursor_id
+        center_x: 0
+        center_y: 0
+
+
+<CursorTargetTaskGame>:
+    field: field_id
+
+    Field:
+        id: field_id
+        pos: self.parent.center
