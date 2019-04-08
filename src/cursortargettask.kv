@@ -1,52 +1,85 @@
 #:kivy 1.9.1
 
 <Cursor>:
-    size: 50, 50
+    size_hint: None, None
+    size: 70, 70
     canvas:
         Color:
-            rgba: 0,1,0,1
+            rgba: (1,1,0,1) if self.ontarget else (0,0,0,0)
         Ellipse:
-            size: 50, 50
+            size: 100, 100
+            pos: (self.x-15, self.y-15)
+            angle_start: 0
+            angle_end: min((self.ontarget_time / self.lockin_time)*360, 360)
+
+        Color:
+            rgba: (0.9333,.4667,0,1) if self.ontarget else (1,0,0,1)
+        Ellipse:
+            size: 70, 70
             pos: self.pos
+
+        Color:
+            rgba: (0,1,0,1) if (self.ontarget_time >= self.lockin_time) else (0,0,0,0)
+        Ellipse:
+            size: 100, 100
+            pos: (self.x-15, self.y-15)
+
+
 <Target>:
-    size: 20, 200
+    size_hint: None, None
+    size: 100, 100
     canvas:
         Color:
-            rgba: 1,1,1,1
+            rgba: (((0,0.8,0,1) if self.hit else (0.8,0.7,0,1)) if self.active else ((0,0.9,0,0.5) if self.hit else (0.9,0.9,0,0.1)))
         Rectangle:
             pos: self.pos
             size: self.size
 
-<Path>:
-    size: 0, 0
 
 <BackgroundGrid>:
     size: 0, 0
 
-<Field>:
-    size: 0, 0
-
-    target: target_id
+<Task>:
     cursor: cursor_id
-    bggrid: bggrid_id
-
+    targets: targets_id
+    
     BackgroundGrid:
-        id: bggrid_id
-        pos: 0, 0
+        pos: root.center_x, 0
+    
+    EndlessTargetList:
+        id: targets_id
 
-    Path:
-        id: target_id
-        pos: 0, 0
-
+        Target:
+            active: True
+            pos: 400, 600
+        
     Cursor:
         id: cursor_id
-        center_x: 0
-        center_y: 0
-
+        lockin_time: 0.5
+        initial: (root.center_x, 100, 0, 0, 0, 0)
+        dynamics_ct:
+            #    c   x   y  dx  dy ddx ddy
+            [[   0,  1,  0,  0,  0,  0,  0], #x
+            [    0,  0,  1,  0,  0,  0,  0], #y
+            [    0,  0,  0,.97,  0,  0,  0], #dx
+            [    0,  0,  0,  0,  0,  0,  0], #dy
+            [    0,  0,  0,  0,  0,  0,  0], #ddx
+            [    0,  0,  0,  0,  0,  0,  0]] #ddy
+        dynamics_td:
+            #    c   x   y  dx  dy ddx ddy
+            [[   0,  0,  0,  1,  0,  0,  0], #x
+            [  100,  0,  0,  0,  1,  0,  0], #y
+            [    0,  0,  0,  0,  0,  1,  0], #dx
+            [    0,  0,  0,  0,  0,  0,  1], #dy
+            [    0,  0,  0,  0,  0,  0,  0], #ddx
+            [    0,  0,  0,  0,  0,  0,  0]] #ddy
 
 <CursorTargetTaskGame>:
-    field: field_id
-
-    Field:
-        id: field_id
-        pos: self.parent.center
+    Task:
+        name: "bug"
+        timeout: 0
+    Task:
+        name: "Hugs"
+        timeout: 4
+    Screen:
+        name: "done"
