@@ -13,7 +13,7 @@ from kivy.graphics import Color, Line
 import random
 
 from kivy.core.window import Window
-Window.size = (1080, 1920)
+Window.size = (1080, 1080)
 
 from kivy.config import Config
 Config.set('kivy', 'log_level', 'trace')
@@ -22,8 +22,8 @@ import numpy as np
 
 import rospy
 from std_msgs.msg import String
-from sensor_msgs.msg import Joy
-from geometry_msgs.msg import Vector3
+from sensor_msgs.msg import Joy, JointState
+from geometry_msgs.msg import WrenchStamped
 
 class InputSource(EventDispatcher):
     value = NumericProperty(0)
@@ -36,7 +36,6 @@ class ROSInputSource(InputSource):
 
     def ros_msg_cb(self, msg):
         self.value = self.msg_decoder(msg)
-
 
 class Cursor(Widget):
     ontarget = BooleanProperty(False)
@@ -168,7 +167,8 @@ class Task(Screen):
         self.initialized = False
         self.touchinput = InputSource()
         self.ros_joy_x = ROSInputSource("joy", Joy, lambda a : a.axes[0])
-        # self.ros_force_x = ROSInputSource("FSE103/force", Vector3, lambda a : a.x)
+        self.ros_force_x = ROSInputSource("fse103", WrenchStamped, lambda a : a.wrench.force.x)
+        self.ros_sliderpos = ROSInputSource("joint_states", JointState, lambda a : a.position[0])
 
     def complete(self):
         print('complete')
@@ -176,9 +176,10 @@ class Task(Screen):
 
     def setup_inputs(self):
         self.cursor.set_dynamics()
-        self.cursor.add_input(self.touchinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[1000],[0]]),)
-        # self.cursor.add_input(self.ros_force_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[-50],[0]]),)
-        # self.cursor.add_input(self.ros_joy_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[-1000],[0]]),)
+        #self.cursor.add_input(self.touchinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[1000],[0]]),)       
+        #self.cursor.add_input(self.ros_joy_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[-1000],[0]]),)
+        self.cursor.add_input(self.ros_force_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[5],[0]]),)
+        #self.cursor.add_input(self.ros_sliderpos, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[1000],[0]]),)
         self.initialized = True
 
 
