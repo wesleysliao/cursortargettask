@@ -1,5 +1,6 @@
 #:kivy 1.9.1
 
+
 <Cursor>:
     size_hint: None, None
     size: 70, 70
@@ -35,16 +36,9 @@
             pos: self.pos
             size: self.size
 
-
-<BackgroundGrid>:
-    size: 0, 0
-
-<Task>:
+<CatchFallingBlocks>:
     cursor: cursor_id
     targets: targets_id
-    
-    BackgroundGrid:
-        pos: root.center_x, 0
     
     EndlessTargetList:
         id: targets_id
@@ -75,10 +69,12 @@
             [    0,  0,  0,  0,  0,  0,  0]] #ddy
 
 <Procedure>:
-    Task:
-        name: "bug"
+    CatchFallingBlocks:
+        name: "cfb0"
+        timeout: 3
+    CatchFallingBlocks:
+        name: "cfb1"
+        timeout: 3
+    CatchFallingBlocks:
+        name: "cfb2"
         timeout: 0
-    Task:
-        name: "Hugs"
-        timeout: 4
-

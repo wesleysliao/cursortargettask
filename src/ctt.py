@@ -43,7 +43,7 @@ class Cursor(Widget):
     lockin_time = NumericProperty(1)
 
 
-    #  initial conditions      x   y  dx  dy ddx ddy
+    #  initial conditions    x     y     dx    dy    ddx   ddy
     initial = ListProperty([ 0.0,  0.0,  0.0,  0.0,  0.0,  0.0])
 
     #   dynamic coeff.              c   x   y  dx  dy ddx ddy
@@ -64,7 +64,6 @@ class Cursor(Widget):
     def __init__(self, **kwargs):
         super(Cursor, self).__init__(**kwargs)
         self.inputdict = dict()
-
 
     def set_dynamics(self):
         self.dynamics_timedep = np.array( self.dynamics_td, dtype=float)
@@ -165,58 +164,27 @@ class Task(Screen):
     def __init__(self, **kwargs):
         super(Task, self).__init__(**kwargs)
         self.initialized = False
-        self.touchinput = InputSource()
-        self.ros_joy_x = ROSInputSource("joy", Joy, lambda a : a.axes[0])
-        self.ros_force_x = ROSInputSource("fse103", WrenchStamped, lambda a : a.wrench.force.x)
-        self.ros_sliderpos = ROSInputSource("joint_states", JointState, lambda a : a.position[0])
-
+        
     def complete(self):
         print('complete')
         self.manager.current = self.manager.next()
 
-    def setup_inputs(self):
+    def setup(self):
         self.cursor.set_dynamics()
-        #self.cursor.add_input(self.touchinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[1000],[0]]),)       
-        #self.cursor.add_input(self.ros_joy_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[-1000],[0]]),)
-        self.cursor.add_input(self.ros_force_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[5],[0]]),)
-        #self.cursor.add_input(self.ros_sliderpos, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[0],[0],[0],[1000],[0]]),)
+        self.add_inputs()
         self.initialized = True
-
 
         if(self.timeout != 0):
             Clock.schedule_once(lambda dt: self.complete(), self.timeout)
 
+    def add_inputs(self):
+        self.cursor.init_state()
+
     def update(self, dt):
         if self.initialized:
             self.cursor.update(dt)
-            self.y = 400-self.cursor.y
-
-            if self.cursor.y > self.targets.current_target().top:
-                self.targets.next()
-
-            if self.cursor.collide_widget(self.targets.current_target()):
-                self.cursor.ontarget = True
-                if self.cursor.ontarget_time >= self.cursor.lockin_time:
-                    self.targets.current_target().hit = True
-            else:
-                if not self.targets.current_target().hit:
-                    self.cursor.ontarget = False
         else:
-            self.setup_inputs()
-
-        # if self.cursor.collide_widget(self.targets.current_target()):
-        #         self.next()
-
-
-    def on_touch_down(self, touch):
-        x = (touch.x-self.center_x)/(self.width/2)
-        self.touchinput.value =x
-
-    def on_touch_up(self, touch):
-       self.touchinput.value = 0
-
-    def on_touch_move(self, touch):
-        self.on_touch_down(touch)
+            self.setup()
 
 class Measure(EventDispatcher):
     value = NumericProperty(0)
@@ -228,21 +196,19 @@ class Measure(EventDispatcher):
         pass
         
 
-class CursorTargetTaskGame(ScreenManager):
+class Procedure(ScreenManager):
     def __init__(self, **kwargs):
-        super(CursorTargetTaskGame, self).__init__(transition = NoTransition(),**kwargs)
-        # self.ros_statpub = rospy.Publisher('cursortargettask', String, queue_size=10)
+        super(Procedure, self).__init__(transition = NoTransition(),**kwargs)
 
     def update(self, dt):
         self.update_state(dt)
         self.update_measures(dt)
 
-        # self.publish_state(dt)
-        # self.publish_measures(dt)
-
     def update_state(self, dt):
-        if self.current != "done":
+        try:
             self.current_screen.update(dt)
+        except:
+            print("no update method for "+self.current)
 
     def update_measures(self, dt):
         pass
@@ -252,9 +218,9 @@ class CursorTargetTaskApp(App):
         rospy.init_node('CursorTargetTask', anonymous=True)
         rospy.on_shutdown(self.stop)
 
-        game = CursorTargetTaskGame()
-        Clock.schedule_interval(game.update, 1.0 / 60.0)
-        return game
+        procedure = Procedure()
+        Clock.schedule_interval(procedure.update, 1.0 / 60.0)
+        return procedure 
 
 if __name__ == '__main__':
     app = CursorTargetTaskApp()
