@@ -1,0 +1,99 @@
+#:kivy 1.9.1
+
+<Cursor>:
+    size_hint: 0.1, None
+    height: self.width
+    canvas:
+        Color:
+            rgba: (1,0,0,1)
+        Ellipse:
+            size: self.size
+            pos: self.pos
+
+<Target>:
+    size_hint: 0.11, None
+    height: self.width
+    canvas:
+        Color:
+            rgba: (1,1,1,1) #if self.active else (0,0,0,0)
+        Ellipse:
+            size: self.size
+            pos: self.pos
+
+<LeftRight>:
+    cursor: cursor_id
+    targets: targets_id
+
+    canvas:
+        Color:
+            rgba:(0,1,0,0.2)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+
+
+    TargetList:
+        id: targets_id
+        canvas:
+            Color:
+                rgba:(1,0,0,0.2)
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        Target:
+            active: False
+            pos_hint: {'center_x': (1.0/6), 'center_y': 0.5}
+        Target:
+            active: False
+            pos_hint: {'center_x': (1.0/3), 'center_y': 0.5}
+        Target:
+            active: False
+            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        Target:
+            active: False
+            pos_hint: {'center_x': (2.0/3), 'center_y': 0.5}
+        Target:
+            active: False
+            pos_hint: {'center_x': (5.0/6), 'center_y': 0.5}
+
+    Cursor:
+        id: cursor_id
+        lockin_time: 0
+        initial: (root.center_x, 100, 0, 0, 0, 0)
+        dynamics_ct:
+            #    c   x   y  dx  dy ddx ddy
+            [[   0,  0,  0,  0,  0,  0,  0], #x
+            [    0,  0,  1,  0,  0,  0,  0], #y
+            [    0,  0,  0,  0,  0,  0,  0], #dx
+            [    0,  0,  0,  0,  0,  0,  0], #dy
+            [    0,  0,  0,  0,  0,  0,  0], #ddx
+            [    0,  0,  0,  0,  0,  0,  0]] #ddy
+        dynamics_td:
+            #    c   x   y  dx  dy ddx ddy
+            [[   0,  0,  0,  0,  0,  0,  0], #x
+            [    0,  0,  0,  0,  0,  0,  0], #y
+            [    0,  0,  0,  0,  0,  0,  0], #dx
+            [    0,  0,  0,  0,  0,  0,  0], #dy
+            [    0,  0,  0,  0,  0,  0,  0], #ddx
+            [    0,  0,  0,  0,  0,  0,  0]] #ddy
+
+<Procedure>:
+
+    canvas:
+        Color:
+            rgba:(0,0,1,0.2)
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    LeftRight:
+        name: "trial0"
+        timeout: 4
+    LeftRight:
+        name: "trial1"
+        timeout: 4
+    LeftRight:
+        name: "trial2"
+        timeout: 4

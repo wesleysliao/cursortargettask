@@ -103,7 +103,7 @@ class Cursor(Widget):
         else:
             self.ontarget_time = 0
 
-class TargetList(Widget):
+class TargetList(RelativeLayout):
     current = NumericProperty(0)
 
     def current_target(self):
