@@ -24,6 +24,7 @@
     cursor: cursor_id
     targets: targets_id
 
+
     canvas:
         Color:
             rgba:(0,0.1,0,1)
@@ -33,6 +34,13 @@
 
     TargetList:
         id: targets_id
+
+        canvas:
+            Color:
+                rgba:(0,0,0.1,0)
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
         Target:
             active: False
@@ -53,10 +61,10 @@
     Cursor:
         id: cursor_id
         lockin_time: 0
-        initial: (root.center_x, root.center_y, 0, 0, 0, 0)
+        initial: ( 540, 540, 0, 0, 0, 0)
         dynamics_ct:
             #    c   x   y  dx  dy ddx ddy
-            [[   root.center_x,  0,  0,  0,  0,  0,  0], #x
+            [[   540,  0,  0,  0,  0,  0,  0], #x
             [    0,  0,  1,  0,  0,  0,  0], #y
             [    0,  0,  0,  0,  0,  0,  0], #dx
             [    0,  0,  0,  0,  0,  0,  0], #dy
@@ -71,13 +79,23 @@
             [    0,  0,  0,  0,  0,  0,  0], #ddx
             [    0,  0,  0,  0,  0,  0,  0]] #ddy
 
+<TextScreen>:
+    Label:
+        pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+        text: self.parent.text
+
 <Procedure>:
+    TextScreen:
+        name: "startscreen"
+        text: "Welcome."
+        timeout: 2
     LeftRight:
         name: "trial0"
         timeout: 0
     LeftRight:
         name: "trial1"
-        timeout: 4
-    LeftRight:
-        name: "trial2"
-        timeout: 4
+        timeout: 0
+    TextScreen:
+        name: "endscreen"
+        text: "Trial Complete. Congratulations."
+        timeout: 0

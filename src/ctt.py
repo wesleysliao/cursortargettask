@@ -6,7 +6,7 @@ from kivy.event import EventDispatcher
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition, SlideTransition
-from kivy.properties import BooleanProperty, NumericProperty, ReferenceListProperty, ObjectProperty, ListProperty
+from kivy.properties import BooleanProperty, NumericProperty, ReferenceListProperty, ObjectProperty, ListProperty, StringProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
 from kivy.graphics import Color, Line
@@ -156,33 +156,48 @@ class BackgroundGrid(Widget):
         offset_y = self.y-((vsize*spacing)/2)
         self.draw_grid(spacing, hsize, vsize, linewidth, offset_x, offset_y)
 
-class Task(Screen):
+class TimedScreen(Screen):
     timeout = NumericProperty(0)
-    cursor = ObjectProperty()
-    targets = ObjectProperty()
 
     def __init__(self, **kwargs):
-        super(Task, self).__init__(**kwargs)
+        super(TimedScreen, self).__init__(**kwargs)
         self.initialized = False
-        
+
+    def setup(self):
+        if(self.timeout != 0):
+            Clock.schedule_once(lambda dt: self.complete(), self.timeout)
+        self.initialized = True
+
     def complete(self):
         print('complete')
         self.manager.current = self.manager.next()
 
+    def update(self, dt):
+        if not self.initialized:
+            self.setup()
+
+    def on_enter(self):
+        print(self.size)
+
+
+class TextScreen(TimedScreen):
+    text = StringProperty()
+
+class Task(TimedScreen):
+    cursor = ObjectProperty()
+    targets = ObjectProperty()
+
     def setup(self):
         self.cursor.set_dynamics()
         self.add_inputs()
-        self.initialized = True
 
-        if(self.timeout != 0):
-            Clock.schedule_once(lambda dt: self.complete(), self.timeout)
+        super(Task, self).setup()
 
     def add_inputs(self):
         self.cursor.init_state()
 
     def update(self, dt):
-        if not self.initialized:
-            self.setup()
+        super(Task, self).update(dt)
         self.cursor.update(dt)
 
 
