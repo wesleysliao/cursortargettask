@@ -181,10 +181,10 @@ class Task(Screen):
         self.cursor.init_state()
 
     def update(self, dt):
-        if self.initialized:
-            self.cursor.update(dt)
-        else:
+        if not self.initialized:
             self.setup()
+        self.cursor.update(dt)
+
 
 class Measure(EventDispatcher):
     value = NumericProperty(0)

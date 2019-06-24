@@ -5,7 +5,7 @@
     height: self.width
     canvas:
         Color:
-            rgba: (1,0,0,1)
+            rgba: (0.9,1,0,1)
         Ellipse:
             size: self.size
             pos: ((self.x-(self.width/2)),(self.y-(self.height/2)))
@@ -15,7 +15,7 @@
     height: self.width
     canvas:
         Color:
-            rgba: (1,1,1,1) #if self.active else (0,0,0,0)
+            rgba: (0,0,0,0) if not self.active else ((0,0.8,0.5,1) if self.hit else (0,0.5,0.2,1)) 
         Ellipse:
             size: self.size
             pos: self.pos
@@ -26,21 +26,13 @@
 
     canvas:
         Color:
-            rgba:(0,1,0,0.2)
+            rgba:(0,0.1,0,1)
         Rectangle:
             size: self.size
             pos: self.pos
 
-
-
     TargetList:
         id: targets_id
-        canvas:
-            Color:
-                rgba:(1,0,0,0.2)
-            Rectangle:
-                size: self.size
-                pos: self.pos
 
         Target:
             active: False
@@ -80,14 +72,6 @@
             [    0,  0,  0,  0,  0,  0,  0]] #ddy
 
 <Procedure>:
-
-    canvas:
-        Color:
-            rgba:(0,0,1,0.2)
-        Rectangle:
-            size: self.size
-            pos: self.pos
-
     LeftRight:
         name: "trial0"
         timeout: 0
