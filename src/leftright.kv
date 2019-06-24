@@ -15,7 +15,7 @@
     height: self.width
     canvas:
         Color:
-            rgba: (0,0,0,0) if not self.active else ((0,0.8,0.5,1) if self.hit else (0,0.5,0.2,1)) 
+            rgba: (1,1,1,0.1) if not self.active else ((0,0.8,0.5,1) if self.hit else (0,0.5,0.2,1)) 
         Ellipse:
             size: self.size
             pos: self.pos
@@ -84,7 +84,7 @@
         pos_hint: {'center_x': 0.5, 'center_y': 0.5}
         text: self.parent.text
 
-<Procedure>:
+<LeftRightProcedure>:
     TextScreen:
         name: "startscreen"
         text: "Welcome."
@@ -94,6 +94,18 @@
         timeout: 0
     LeftRight:
         name: "trial1"
+        timeout: 0
+    LeftRight:
+        name: "trial2"
+        timeout: 0
+    LeftRight:
+        name: "trial3"
+        timeout: 0
+    LeftRight:
+        name: "trial4"
+        timeout: 0
+    LeftRight:
+        name: "trial5"
         timeout: 0
     TextScreen:
         name: "endscreen"

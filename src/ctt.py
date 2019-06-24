@@ -217,7 +217,7 @@ class Procedure(ScreenManager):
 
     def update(self, dt):
         self.update_state(dt)
-        self.update_measures(dt)
+	self.publish_state(dt)
 
     def update_state(self, dt):
         try:
@@ -225,8 +225,8 @@ class Procedure(ScreenManager):
         except Exception as error:
             print(self.current, error)
 
-    def update_measures(self, dt):
-        pass
+    def publish_state(self,dt):
+	pass
 
 class CursorTargetTaskApp(App):
     def build(self):
