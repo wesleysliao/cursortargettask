@@ -8,10 +8,10 @@
             rgba: (1,0,0,1)
         Ellipse:
             size: self.size
-            pos: self.pos
+            pos: ((self.x-(self.width/2)),(self.y-(self.height/2)))
 
 <Target>:
-    size_hint: 0.11, None
+    size_hint: 0.15, None
     height: self.width
     canvas:
         Color:
@@ -61,10 +61,10 @@
     Cursor:
         id: cursor_id
         lockin_time: 0
-        initial: (root.center_x, 100, 0, 0, 0, 0)
+        initial: (root.center_x, root.center_y, 0, 0, 0, 0)
         dynamics_ct:
             #    c   x   y  dx  dy ddx ddy
-            [[   0,  0,  0,  0,  0,  0,  0], #x
+            [[   root.center_x,  0,  0,  0,  0,  0,  0], #x
             [    0,  0,  1,  0,  0,  0,  0], #y
             [    0,  0,  0,  0,  0,  0,  0], #dx
             [    0,  0,  0,  0,  0,  0,  0], #dy
@@ -90,7 +90,7 @@
 
     LeftRight:
         name: "trial0"
-        timeout: 4
+        timeout: 0
     LeftRight:
         name: "trial1"
         timeout: 4

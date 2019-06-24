@@ -207,8 +207,8 @@ class Procedure(ScreenManager):
     def update_state(self, dt):
         try:
             self.current_screen.update(dt)
-        except:
-            print("no update method for "+self.current)
+        except Exception as error:
+            print(self.current, error)
 
     def update_measures(self, dt):
         pass
