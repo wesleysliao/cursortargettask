@@ -6,7 +6,7 @@ import rospy
 from geometry_msgs.msg import WrenchStamped
 
 from ctt import InputSource, ROSInputSource, Task, Procedure, CursorTargetTaskApp
-#from cursortargettask import LeftRightState
+from cursortargettask.msg import LeftRightState
 
 class LeftRight(Task):
     def setup(self):
@@ -79,7 +79,7 @@ class LeftRight(Task):
 class LeftRightProcedure(Procedure):
     def __init__(self, **kwargs):
         super(LeftRightProcedure, self).__init__(**kwargs)
-	#self.pub = rospy.Publisher('leftrighttrial', LeftRightState, queue_size=10)
+	self.pub = rospy.Publisher('leftrighttrial', LeftRightState, queue_size=10)
 
     def publish_state(self,dt):
         timestamp = rospy.get_rostime()
@@ -94,6 +94,7 @@ class LeftRightProcedure(Procedure):
              track_target = self.current_screen.tracking_target
              return_center = self.current_screen.returning_center
         print(timestamp, screen_index, cursor_x, target_x, track_target, return_center)
+        self.pub.publish(LeftRightState(timestamp, cursor_x, target_x, screen_index, track_target, return_center))
 
 
 class LeftRightApp(CursorTargetTaskApp):
