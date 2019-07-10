@@ -17,7 +17,7 @@ class LeftRight(Task):
 
     def add_inputs(self):
         self.touchinput = InputSource()
-	self.forceinput = ROSInputSource("fse103", WrenchStamped, lambda msg: msg.wrench.force.x)
+	    self.forceinput = ROSInputSource("fse103", WrenchStamped, lambda msg: msg.wrench.force.x)
         self.cursor.add_input(self.touchinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[self.get_root_window().width/2],[0],[0],[0],[0],[0]]))
         self.cursor.add_input(self.forceinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[-7],[0],[0],[0],[0],[0]]))
 

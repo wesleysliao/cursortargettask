@@ -54,6 +54,7 @@ find_package(catkin REQUIRED COMPONENTS
    FILES
    CursorState.msg
    LeftRightState.msg
+   EggDropState.msg
  )
 
 ## Generate services in the 'srv' folder
