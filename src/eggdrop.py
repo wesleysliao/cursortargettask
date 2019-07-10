@@ -2,6 +2,7 @@
 
 import numpy as np
 from kivy.clock import Clock
+from kivy.properties import ObjectProperty, NumericProperty
 import rospy
 from geometry_msgs.msg import WrenchStamped
 
@@ -9,30 +10,39 @@ from ctt import InputSource, ROSInputSource, Task, Procedure, CursorTargetTaskAp
 from cursortargettask.msg import EggDropState
 
 class EggDrop(Task):
+    p2_cursor = ObjectProperty()
+    cursor_diff = NumericProperty()
+    cursor_center = NumericProperty()
+
     def setup(self):
+        self.p2_cursor.set_dynamics()
         super(EggDrop, self).setup()
 
     def add_inputs(self):
-        self.touchinput = InputSource()
+        self.touchinput_x = InputSource()
+        self.touchinput_y = InputSource()
 	    #self.forceinput = ROSInputSource("fse103", WrenchStamped, lambda msg: msg.wrench.force.x)
-        self.cursor.add_input(self.touchinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[self.get_root_window().height/2],[0],[0],[0],[0]]))
+        self.cursor.add_input(self.touchinput_y, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[self.get_root_window().height/2],[0],[0],[0],[0]]))
+        self.p2_cursor.add_input(self.touchinput_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[self.get_root_window().height/2],[0],[0],[0],[0]]))
         #self.cursor.add_input(self.forceinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[-7],[0],[0],[0],[0],[0]]))
 
+
     def on_touch_down(self, touch):
+        x = (touch.x-self.center_x)/(self.width/2)
+        self.touchinput_x.value = x
         y = (touch.y-self.center_y)/(self.height/2)
-        self.touchinput.value =y
-        print("td", self.touchinput.value)
+        self.touchinput_y.value =y
 
     def on_touch_up(self, touch):
-        self.touchinput.value = 0
-        print("td", self.touchinput.value)
+        self.touchinput_x.value = 0
+        self.touchinput_y.value = 0
 
     def on_touch_move(self, touch):
         self.on_touch_down(touch)
-        print("td", self.touchinput.value)
 
     def update(self, dt):
         super(EggDrop, self).update(dt)
+        self.p2_cursor.update(dt)
 
 class EggDropProcedure(Procedure):
     def __init__(self, **kwargs):
@@ -47,10 +57,11 @@ class EggDropProcedure(Procedure):
         screen_index = self.screen_names.index(self.current)
 
         if isinstance( self.current_screen, EggDrop):
-            p1_cursor_y = 1
-            p2_cursor_y = 2
+            p1_cursor_y = self.current_screen.cursor.y
+            p2_cursor_y = self.current_screen.p2_cursor.y
             reference_y = 0
         print(timestamp, screen_index, p1_cursor_y, p2_cursor_y, reference_y)
+        print(self.current_screen.cursor_diff, self.current_screen.cursor_center)
         self.pub.publish(EggDropState(timestamp, p1_cursor_y, p2_cursor_y, reference_y, screen_index))
 
 

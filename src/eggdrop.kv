@@ -1,6 +1,19 @@
 #:kivy 1.9.1
 
-<Cursor>:
+<P1Cursor@Cursor>:
+    size_hint: 0.1, None
+    height: self.width
+    canvas:
+        Color:
+            rgba: (1,0,0,1)
+        Ellipse:
+            size: self.size
+            pos: ((self.x-(self.width/2)),(self.y-(self.height/2)))
+        Rectangle:
+            size: ((self.width/2), 1080)
+            pos: ((self.x-(self.width/4)),(self.y-1080))
+
+<P2Cursor@Cursor>:
     size_hint: 0.1, None
     height: self.width
     canvas:
@@ -9,6 +22,9 @@
         Ellipse:
             size: self.size
             pos: ((self.x-(self.width/2)),(self.y-(self.height/2)))
+        Rectangle:
+            size: ((self.width/2), 1080)
+            pos: ((self.x-(self.width/4)),(self.y))
 
 <Target>:
     size_hint: 0.15, None
@@ -22,7 +38,11 @@
 
 <EggDrop>:
     cursor: p1_cursor_id
+    p2_cursor: p2_cursor_id
     targets: targets_id
+
+    cursor_diff: self.p2_cursor.y -  self.cursor.y
+    cursor_center: self.cursor.y + (self.cursor_diff/2)
 
     canvas:
         Color:
@@ -31,6 +51,13 @@
             size: self.size
             pos: self.pos
 
+        Color:
+            rgba:(0.9,0.9,1,1)
+
+        Rectangle:
+            size: (self.cursor_diff, self.cursor_diff)
+            pos: (self.center_x-(self.cursor_diff/2), self.cursor_center-(self.cursor_diff/2))
+        
     TargetList:
         id: targets_id
 
@@ -45,14 +72,14 @@
             active: True
             pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
-    Cursor:
+    P1Cursor:
         id: p1_cursor_id
         lockin_time: 0
         initial: ( 540, 540, 0, 0, 0, 0)
         dynamics_ct:
             #    c   x   y  dx  dy ddx ddy
             [[   0,  1,  0,  0,  0,  0,  0], #x
-            [    540,  0,  0,  0,  0,  0,  0], #y
+            [    540-100,  0,  0,  0,  0,  0,  0], #y
             [    0,  0,  0,  0,  0,  0,  0], #dx
             [    0,  0,  0,  0,  0,  0,  0], #dy
             [    0,  0,  0,  0,  0,  0,  0], #ddx
@@ -65,6 +92,29 @@
             [    0,  0,  0,  0,  0,  0,  0], #dy
             [    0,  0,  0,  0,  0,  0,  0], #ddx
             [    0,  0,  0,  0,  0,  0,  0]] #ddy
+
+    P2Cursor:
+        id: p2_cursor_id
+        lockin_time: 0
+        initial: ( 540, 540, 0, 0, 0, 0)
+        dynamics_ct:
+            #    c   x   y  dx  dy ddx ddy
+            [[   0,  1,  0,  0,  0,  0,  0], #x
+            [    540+100,  0,  0,  0,  0,  0,  0], #y
+            [    0,  0,  0,  0,  0,  0,  0], #dx
+            [    0,  0,  0,  0,  0,  0,  0], #dy
+            [    0,  0,  0,  0,  0,  0,  0], #ddx
+            [    0,  0,  0,  0,  0,  0,  0]] #ddy
+        dynamics_td:
+            #    c   x   y  dx  dy ddx ddy
+            [[   0,  0,  0,  0,  0,  0,  0], #x
+            [    0,  0,  0,  0,  0,  0,  0], #y
+            [    0,  0,  0,  0,  0,  0,  0], #dx
+            [    0,  0,  0,  0,  0,  0,  0], #dy
+            [    0,  0,  0,  0,  0,  0,  0], #ddx
+            [    0,  0,  0,  0,  0,  0,  0]] #ddy
+
+
 
 <TextScreen>:
     Label:
