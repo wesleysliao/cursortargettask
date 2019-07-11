@@ -4,6 +4,7 @@ import numpy as np
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty, NumericProperty
 import rospy
+import tf
 from geometry_msgs.msg import WrenchStamped
 
 from ctt import InputSource, ROSInputSource, Task, Procedure, CursorTargetTaskApp
@@ -21,11 +22,19 @@ class EggDrop(Task):
     def add_inputs(self):
         self.touchinput_x = InputSource()
         self.touchinput_y = InputSource()
-	    #self.forceinput = ROSInputSource("fse103", WrenchStamped, lambda msg: msg.wrench.force.x)
+        self.forceinput_p1 = ROSInputSource("load_cell_1", WrenchStamped, lambda msg: msg.wrench.force.x)
+        self.forceinput_p2 = ROSInputSource("load_cell_2", WrenchStamped, lambda msg: msg.wrench.force.x)
+
+        self.encoderinput = InputSource()
+        self.encoderlistener = tf.TransformListener()
+
         self.cursor.add_input(self.touchinput_y, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[self.get_root_window().height/2],[0],[0],[0],[0]]))
         self.p2_cursor.add_input(self.touchinput_x, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[self.get_root_window().height/2],[0],[0],[0],[0]]))
-        #self.cursor.add_input(self.forceinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[-7],[0],[0],[0],[0],[0]]))
+        self.cursor.add_input(self.forceinput_p1, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[3],[0],[0],[0],[0]]))
+        self.p2_cursor.add_input(self.forceinput_p2, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[-3],[0],[0],[0],[0]]))
 
+        self.cursor.add_input(self.encoderinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[2*self.get_root_window().height],[0],[0],[0],[0]]))
+        self.p2_cursor.add_input(self.encoderinput, np.array([[0],[0],[0],[0],[0],[0]]),np.array([[0],[2*self.get_root_window().height],[0],[0],[0],[0]]))
 
     def on_touch_down(self, touch):
         x = (touch.x-self.center_x)/(self.width/2)
@@ -43,6 +52,13 @@ class EggDrop(Task):
     def update(self, dt):
         super(EggDrop, self).update(dt)
         self.p2_cursor.update(dt)
+
+        try:
+            (trans,rot) = self.encoderlistener.lookupTransform('/baseboard', '/slider', rospy.Time(0))
+            print(trans, rot)
+            self.encoderinput.value = trans[1]
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as error:
+            print(error)
 
 class EggDropProcedure(Procedure):
     def __init__(self, **kwargs):
