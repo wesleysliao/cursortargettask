@@ -90,7 +90,7 @@ class Cursor(Widget):
     def update_input(self, obj, value):
         self.state[self.inputdict[obj]] = value
 
-    def update(self, dt):
+    def update(self, dt, t):
         for order in range(len(self.dynamics_timedep), 0, -1):
             self.state[order] = ( np.dot(self.state, self.dynamics_const[order-1,:]) 
                                   + np.dot(dt*self.state, self.dynamics_timedep[order-1,:]) )
@@ -117,6 +117,9 @@ class TargetList(RelativeLayout):
         else:
             self.parent.complete()
 
+    def update(self, dt, t):
+        self.current_target().update(dt, t)
+
 class EndlessTargetList(TargetList):
     def add_target(self):
         self.add_widget(Target(), len(self.children))
@@ -133,39 +136,35 @@ class Target(Widget):
     active = BooleanProperty(False)
     hit = BooleanProperty(False)
 
-class BackgroundGrid(Widget):
-    def __init__(self, **kwargs):
-        super(BackgroundGrid, self).__init__(**kwargs)
-        self.bind(pos=self.update_canvas)
-        self.update_canvas()
+    def update(self, dt, t):
+        pass
 
-    def update_canvas(self, *args):
-        self.canvas.clear()
-        with self.canvas:
-            Color(rgba=(1,1,1,0.5))
-            self.draw_grid(100, 4, 100, 1, self.x-200, self.y)
 
-    def draw_grid(self, spacing, hsize, vsize, linewidth, origin_x, origin_y):
-        for hline in range(vsize+1):
-            Line(points=(origin_x, origin_y+(spacing*hline), origin_x+(spacing*hsize), origin_y+(spacing*hline)), width=linewidth)
-        for vline in range(hsize+1):
-            Line(points=(origin_x+(spacing*vline), origin_y, origin_x+(spacing*vline), origin_y+(spacing*vsize)), width=linewidth)
+class TimeDepTarget(Target):
+    def position_fn(self, t):
+        x = 0
+        y = 0
+        return x, y
 
-    def draw_grid_centered(self, spacing, hsize, vsize, linewidth):
-        offset_x = self.x-((hsize*spacing)/2)
-        offset_y = self.y-((vsize*spacing)/2)
-        self.draw_grid(spacing, hsize, vsize, linewidth, offset_x, offset_y)
+    def update(self, dt, t):
+        x, y = self.position_fn(t)
+
+        self.x = x
+        self.y = y
+
+        print t, x, self.x
 
 class TimedScreen(Screen):
     timeout = NumericProperty(0)
+    start_t = NumericProperty(0)
+    elapsed_t = NumericProperty(0)
 
     def __init__(self, **kwargs):
         super(TimedScreen, self).__init__(**kwargs)
         self.initialized = False
 
     def setup(self):
-        if(self.timeout != 0):
-            Clock.schedule_once(lambda dt: self.complete(), self.timeout)
+        self.start_t = Clock.get_time()
         self.initialized = True
 
     def complete(self):
@@ -175,6 +174,10 @@ class TimedScreen(Screen):
     def update(self, dt):
         if not self.initialized:
             self.setup()
+        self.elapsed_t = Clock.get_time() - self.start_t
+
+        if self.timeout > 0 and self.elapsed_t >= self.timeout:
+            self.complete()
 
     def on_enter(self):
         print(self.size)
@@ -182,6 +185,7 @@ class TimedScreen(Screen):
 
 class TextScreen(TimedScreen):
     text = StringProperty()
+
 
 class Task(TimedScreen):
     cursor = ObjectProperty()
@@ -198,18 +202,9 @@ class Task(TimedScreen):
 
     def update(self, dt):
         super(Task, self).update(dt)
-        self.cursor.update(dt)
+        self.cursor.update(dt, self.elapsed_t)
+        self.targets.update(dt, self.elapsed_t)
 
-
-class Measure(EventDispatcher):
-    value = NumericProperty(0)
-    def __init__(self, topic, msg_type, **kwargs):
-        super(Measure, self).__init__(**kwargs)
-        self.ros_pub = rospy.Publisher(topic, msg_type, queue_size=10)
-    
-    def update_value(self, obj, value):
-        pass
-        
 
 class Procedure(ScreenManager):
     def __init__(self, **kwargs):

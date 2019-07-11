@@ -7,8 +7,22 @@ import rospy
 import tf
 from geometry_msgs.msg import WrenchStamped
 
-from ctt import InputSource, ROSInputSource, Task, Procedure, CursorTargetTaskApp
+from ctt import InputSource, ROSInputSource, Task, Procedure, CursorTargetTaskApp, TimeDepTarget
+from sumofsines import generate_sumofsines_fn
 from cursortargettask.msg import EggDropState
+
+class SOSTarget(TimeDepTarget):
+    def __init__(self, **kwargs):
+        super(SOSTarget, self).__init__(**kwargs)
+
+        self.sosfn = generate_sumofsines_fn([1,2,3])
+
+    def position_fn(self, t):
+        x = 540
+        y = float((100*self.sosfn(t))+540)
+
+        return x, y
+
 
 class EggDrop(Task):
     p2_cursor = ObjectProperty()
@@ -51,7 +65,7 @@ class EggDrop(Task):
 
     def update(self, dt):
         super(EggDrop, self).update(dt)
-        self.p2_cursor.update(dt)
+        self.p2_cursor.update(dt, self.elapsed_t)
 
         try:
             (trans,rot) = self.encoderlistener.lookupTransform('/baseboard', '/slider', rospy.Time(0))

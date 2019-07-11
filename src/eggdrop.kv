@@ -26,7 +26,7 @@
             size: ((self.width/2), 1080)
             pos: ((self.x-(self.width/4)),(self.y))
 
-<Target>:
+<SOSTarget>:
     size_hint: 0.15, None
     height: self.width*2
     canvas:
@@ -34,7 +34,7 @@
             rgba: (1,1,1,0.1) if not self.active else ((0.5,0,0.8,1) if self.hit else (0.2,0,0.5,1)) 
         Rectangle:
             size: self.size
-            pos: self.pos
+            pos: (self.x-(self.width/2), self.y-(self.height/2))
 
 <EggDrop>:
     cursor: p1_cursor_id
@@ -68,9 +68,8 @@
                 size: self.size
                 pos: self.pos
 
-        Target:
+        SOSTarget:
             active: True
-            pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
     P1Cursor:
         id: p1_cursor_id
