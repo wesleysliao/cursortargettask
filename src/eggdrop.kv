@@ -29,7 +29,7 @@
 <SOSTarget>:
     size_hint: 0.15, None
     height: self.width*2
-    canvas:
+    canvas.after:
         Color:
             rgba: (1,1,1,0.1) if not self.active else ((0.5,0,0.8,1) if self.hit else (0.2,0,0.5,1)) 
         Rectangle:
@@ -52,7 +52,7 @@
             pos: self.pos
 
         Color:
-            rgba:(0.9,0.9,1,1)
+            rgba:(0.9,0.9,1,0)
 
         Rectangle:
             size: (self.cursor_diff, self.cursor_diff)

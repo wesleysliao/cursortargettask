@@ -3,6 +3,7 @@
 import numpy as np
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty, NumericProperty
+from kivy.graphics import Color, Line
 import rospy
 import tf
 from geometry_msgs.msg import WrenchStamped
@@ -22,6 +23,33 @@ class SOSTarget(TimeDepTarget):
         y = float((100*self.sosfn(t))+540)
 
         return x, y
+
+    def update(self, dt, t):
+        super(SOSTarget, self).update(dt, t)
+        self.draw_path(t)
+
+
+    def draw_path(self, t):
+
+        resolution = 100
+        drawscale = 1080
+        xpoints = np.linspace(0,drawscale, resolution)
+
+        timescale = 2
+        trange = np.linspace(t-(timescale/2), t+(timescale/2), resolution)
+        ypoints = (100*self.sosfn(trange))+540
+
+        pointlist = []
+        for index in range(resolution):
+            pointlist.append(xpoints[index])
+            pointlist.append(ypoints[index])
+
+        self.canvas.clear()
+        with self.canvas:
+            Color(rgba=(1,1,1,0.4))
+            Line(points=pointlist, width=20)
+
+
 
 
 class EggDrop(Task):
@@ -93,7 +121,6 @@ class EggDropProcedure(Procedure):
         print(timestamp, screen_index, p1_cursor_y, p2_cursor_y, reference_y)
         print(self.current_screen.cursor_diff, self.current_screen.cursor_center)
         self.pub.publish(EggDropState(timestamp, p1_cursor_y, p2_cursor_y, reference_y, screen_index))
-
 
 class EggDropApp(CursorTargetTaskApp):
     def build(self):
